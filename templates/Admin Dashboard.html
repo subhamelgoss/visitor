@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administrator</title>
+    <link href="../static/style.css" rel="stylesheet" />
+{#      <script src="../static/index.js"></script>#}
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+      integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+      integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark sticky_style">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <img
+            src="../static/images/admin1.jpg"
+            alt=""
+            width="30"
+            height="24"
+            class="d-inline-block align-text-top"
+          />
+          Administrator Dashboard
+        </a>
+        <right
+          ><a href="/admindash"
+            ><button type="button" class="btn btn-primary">Refresh</button></a
+          >
+
+          <a href="/logoutadmin"
+            ><button type="button" class="btn btn-danger">Logout</button></a
+          ></right
+        >
+      </div>
+    </nav>
+<div class="conatiner-fluid">
+    <div class="row add_main_container">
+      <div
+        class="nav col-md-2 add_main_first_col "
+        id="v-pills-tab"
+        role="tablist"
+        aria-orientation="vertical"
+      >
+        <button
+          class="nav-link active"
+          id="v-pills-home-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#v-pills-home"
+          type="button"
+          role="tab"
+          aria-controls="v-pills-home"
+          aria-selected="true"
+        >
+          Home
+        </button>
+        <button
+          class="nav-link"
+          id="v-pills-security-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#v-pills-security"
+          type="button"
+          role="tab"
+          aria-controls="v-pills-security"
+          aria-selected="false"
+        >
+          User Overview
+        </button>
+        <button
+          class="nav-link"
+          id="v-pills-visitor-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#v-pills-visitor"
+          type="button"
+          role="tab"
+          aria-controls="v-pills-visitor"
+          aria-selected="false"
+        >
+          Visitors Overview
+        </button>
+        <button
+          class="nav-link"
+          id="v-pills-notification-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#v-pills-notification"
+          type="button"
+          role="tab"
+          aria-controls="v-pills-notification"
+          aria-selected="false"
+        >
+          Notification
+        </button>
+      </div>
+      <div class="tab-content col-md-10 add_main_second_col"
+        id="v-pills-tabContent "
+      >
+        <div
+          class="tab-pane fade show active"
+          id="v-pills-home"
+          role="tabpanel"
+          aria-labelledby="v-pills-home-tab"
+        >
+          <div class="card-group">
+            <div class="card">
+              <img
+                src="../static/images/security.jpg"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Security</h5>
+                <p class="card-text">
+                  Total Security : {{ countsecurityusers }} <br />
+                </p>
+
+              </div>
+            </div>
+            <div class="card">
+              <img
+                src="../static/images/visitor.png"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Visitors</h5>
+                <p class="card-text">
+                  Total Visitors : {{ countvis }}<br />
+                  Active Visitors : {{ countact }}<br />
+
+                </p>
+
+              </div>
+            </div>
+            <div class="card">
+              <img
+                src="../static/images/others.png"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">Administrator</h5>
+                <p class="card-text">
+                  Total Admins : {{ countadminusers }}<br />
+
+                </p>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="v-pills-security"
+          role="tabpanel"
+          aria-labelledby="v-pills-security-tab"
+        >
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+               <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+            >
+              ADD Security
+            </button>
+              <div
+              class="modal fade"
+              id="exampleModal"
+              tabindex="-1"
+              aria-labelledby="exampleModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                  <div class="container">
+                    <div class="row py-5 mt-4 align-items-center">
+                      <!-- For Demo Purpose -->
+                      <div class="col-md-5 pr-lg-5 mb-5 mb-md-0">
+                        <img
+                          src="../static/images/Home Image.jpg"
+                          alt=""
+                          class="img-fluid mb-3 d-none d-md-block"
+                        />
+                        <div style="text-align: center">
+                          <h3>Create an Account</h3>
+                        </div>
+                      </div>
+
+                      <!-- Registeration Form -->
+                      <div class="col-md-7 col-lg-6 ml-auto">
+                        <form action="/addsec" method="post" class="admin_popup_form_style" >
+                          <div class="row">
+                            <!-- First Name -->
+                            <div class="input-group col-lg-6 mb-4">
+                              <div class="input-group-prepend">
+                                <span
+                                  class="input-group-text bg-white px-4 border-md border-right-0"
+                                >
+                                  <i class="fa fa-user text-muted"></i>
+                                  <i class="fa fa-user"></i>
+                                </span>
+                              </div>
+                              <input
+                                id="Name"
+                                type="text"
+                                name="fullname"
+                                placeholder="Full Name"
+                                class="form-control bg-white border-left-0 border-md" required
+                              />
+                            </div>
+
+                            <!-- Email Address -->
+                            <div class="input-group col-lg-12 mb-4">
+                              <div class="input-group-prepend">
+                                <span
+                                  class="input-group-text bg-white px-4 border-md border-right-0"
+                                >
+                                  <i class="fa fa-envelope text-muted"></i>
+                                </span>
+                              </div>
+                              <input
+                                id="email"
+                                type="email"
+                                name="addemail"
+                                placeholder="Email Address"
+                                value="@security.com"
+                                class="form-control bg-white border-left-0 border-md" required
+                              />
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="input-group col-lg-12 mb-4">
+                              <div class="input-group-prepend">
+                                <span
+                                  class="input-group-text bg-white px-4 border-md border-right-0"
+                                >
+                                  <i class="fa fa-phone-square text-muted"></i>
+                                </span>
+                              </div>
+                              <input
+                                id="country-prefix"
+                                type="text"
+                                value="+91"
+                                style="max-width: 80px"
+                                class="custom-select form-control bg-white border-left-0 border-md h-100 font-weight-bold text-muted"
+                              />
+                              <input
+                                id="phoneNumber"
+                                type="number"
+                                name="phone"
+                                placeholder="Phone Number"
+                                class="form-control bg-white border-md border-left-0 pl-3"
+                                maxlength="10" required
+                              />
+                            </div>
+                            .
+
+                            <!-- Job -->
+                            <div class="input-group col-lg-12 mb-4">
+                              <div class="input-group-prepend">
+                                <span
+                                  class="input-group-text bg-white px-4 border-md border-right-0"
+                                >
+                                  <i class="fa fa-black-tie text-muted"></i>
+                                </span>
+                              </div>
+                              <input
+                                id="jobtitle"
+                                type="text"
+                                name="jobtitle"
+                                placeholder="Job Title"
+                                class="form-control bg-white border-md border-left-0 pl-3" required
+                              />
+                            </div>
+
+                            <!-- Password -->
+                            <div class="input-group col-lg-6 mb-4">
+                              <div class="input-group-prepend">
+                                <span
+                                  class="input-group-text bg-white px-4 border-md border-right-0"
+                                >
+                                  <i class="fa fa-lock text-muted"></i>
+                                </span>
+                              </div>
+                              <input
+                                id="password_security"
+                                type="password"
+                                name="password"
+                                placeholder="Password"
+                                class="form-control bg-white border-left-0 border-md" required
+                                onChange="onChange()"
+                              />
+                            </div>
+
+                            <!-- Password Confirmation -->
+                            <div class="input-group col-lg-6 mb-4">
+                              <div class="input-group-prepend">
+                                <span
+                                  class="input-group-text bg-white px-4 border-md border-right-0"
+                                >
+                                  <i class="fa fa-lock text-muted"></i>
+                                </span>
+                              </div>
+                              <input
+                                id="passwordConfirmation_security"
+                                type="password"
+                                name="passwordConfirmation"
+                                placeholder="Confirm Password"
+                                class="form-control bg-white border-left-0 border-md " required
+                                onChange="onChange()"
+                              />
+                            </div>
+{#                              <div><error id="alert_security" style="color: darkred" ></error></div>#}
+
+                            <!-- Submit Button -->
+                            <div class="form-group col-lg-12 mx-auto mb-0">
+                              <button
+                                type="submit"
+                                name="submit"
+                                value="pass"
+                                class="pure-button pure-button-primary btn btn-primary"
+                              >
+                                Create Account
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+  ADD Administrator
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+         <div class="col-md-5 pr-lg-5 mb-5 mb-md-0">
+                        <img src="../static/images/Home Image.jpg" alt="" class="img-fluid mb-3 d-none d-md-block"/>
+                        <div style="text-align: center">
+                          <h3>Create an Account</h3>
+                        </div>
+                      </div>
+
+                      <!-- Registeration Form -->
+                      <div class="col-md-7 col-lg-6 ml-auto" name="admin">
+                        <form action="/addadmin" method="post" class="admin_popup_form_style" onsubmit="return validate()">
+                          <div class="row">
+                            <!-- First Name -->
+                            <div class="input-group col-lg-6 mb-4">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text bg-white px-4 border-md border-right-0">
+                                  <i class="fa fa-user text-muted"></i>
+                                  <i class="fa fa-user"></i>
+                                </span>
+                              </div>
+                              <input id="Name" type="text" name="fullname" placeholder="Full Name" class="form-control bg-white border-left-0 border-md" required/>
+                            </div>
+
+                            <!-- Email Address -->
+                            <div class="input-group col-lg-12 mb-4">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text bg-white px-4 border-md border-right-0">
+                                  <i class="fa fa-envelope text-muted"></i>
+                                </span>
+                              </div>
+                              <input id="email" type="email" name="addemail" placeholder="Email Address" value="@admin.com" class="form-control bg-white border-left-0 border-md" required/>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="input-group col-lg-12 mb-4">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text bg-white px-4 border-md border-right-0">
+                                  <i class="fa fa-phone-square text-muted"></i>
+                                </span>
+                              </div>
+                              <input id="country-prefix" type="text" value="+91" style="max-width: 80px" class="custom-select form-control bg-white border-left-0 border-md h-100 font-weight-bold text-muted"/>
+                              <input id="phoneNumber" type="number" name="phone" placeholder="Phone Number" class="form-control bg-white border-md border-left-0 pl-3" maxlength="10" required/>
+                            </div>
+
+
+                            <!-- Job -->
+                            <div class="input-group col-lg-12 mb-4">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text bg-white px-4 border-md border-right-0">
+                                  <i class="fa fa-black-tie text-muted"></i>
+                                </span>
+                              </div>
+                              <input id="jobtitle" type="text" name="jobtitle" placeholder="Job Title" class="form-control bg-white border-md border-left-0 pl-3" required/>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="input-group col-lg-6 mb-4">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text bg-white px-4 border-md border-right-0">
+                                  <i class="fa fa-lock text-muted"></i>
+                                </span>
+                              </div>
+                              <input id="password_admin" type="password" name="password" placeholder="Password" class="form-control bg-white border-left-0 border-md" required>
+                            </div>
+
+                            <!-- Password Confirmation -->
+                            <div class="input-group col-lg-6 mb-4">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text bg-white px-4 border-md border-right-0">
+                                  <i class="fa fa-lock text-muted"></i>
+                                </span>
+                              </div>
+                              <input id="passwordConfirmation_admin" type="password" name="passwordConfirmation" placeholder="Confirm Password" class="form-control bg-white border-left-0 border-md" onkeyup="check(this)" required>
+                            </div>
+                              <div><error id="alert" style="color: darkred" ></error></div>
+
+                            <!-- Submit Button -->
+                            <div class="form-group col-lg-12 mx-auto mb-0">
+                              <button type="submit" id="submit" name="submit1" value="pass" class="pure-button pure-button-primary btn btn-primary">
+                                Create Account
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+            <!-- modal -->
+
+        <div>
+            <center>Administrator Details</center>
+        <div class="table-responsive">
+        <table class="table">
+            <thead class="table-light">
+              <th>Sr No</th>
+              <th>Name</th>
+              <th>Phone No</th>
+              <th>Branch</th>
+              <th>Email</th>
+              <th>Password</th>
+              <th>Options</th>
+            </thead>
+            {% for adm in adminobj%}
+            <tbody>
+              <td>{{ loop.index }}</td>
+              <td>{{ adm['Name'] }}</td>
+              <td>{{ adm['Phone'] }}</td>
+              <td>{{ adm['Job'] }}</td>
+              <td>{{ adm['Email'] }}</td>
+              <td>{{ adm['Password'] }}</td>
+              <td>
+                    <a href="/deleteuser/{{ adm['Phone'] }}"> <button type="button" class="btn btn-danger">Delete</button> </a>
+              </td>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+        </div>
+        <div>
+        <center>Security Details</center>
+        <div class="table-responsive">
+          <table class="table">
+            <thead class="table-light">
+              <th>Sr No</th>
+              <th>Name</th>
+              <th>Phone No</th>
+              <th>Gate No</th>
+              <th>Email</th>
+              <th>Password</th>
+              <th>Options</th>
+            </thead>
+            {% for sec in secobj%}
+            <tbody>
+              <td>{{ loop.index }}</td>
+              <td>{{ sec['Name'] }}</td>
+              <td>{{ sec['Phone'] }}</td>
+              <td>{{ sec['Job'] }}</td>
+              <td>{{ sec['Email'] }}</td>
+              <td>{{ sec['Password'] }}</td>
+              <td> <a href="/deleteuser/{{ sec['Phone'] }}"> <button type="button" class="btn btn-danger">Delete</button> </a></td>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+        </div>
+        </div>
+        <div class="tab-pane fade" id="v-pills-visitor" role="tabpanel" aria-labelledby="v-pills-visitor-tab">
+          <center><h3>Accepted Visitors</h3></center>
+         <div class="table-responsive">
+          <table class="table">
+            <thead class="table-light">
+              <th>Sr No</th>
+              <th>Name</th>
+
+              <th>Email</th>
+              <th>Phone No</th>
+              <th>Card</th>
+              <th>UID No</th>
+
+              <th>Gender</th>
+              <th>Purpose</th>
+              <th>Approved</th>
+              <th>Entry Details</th>
+              <th>Exit Details</th>
+            </thead>
+            <tbody>{% for visitor in visitobj%}
+<tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ visitor['Name'] }}</td>
+
+              <td>{{ visitor['Email'] }}</td>
+              <td>{{ visitor['Phone'] }}</td>
+              <td>{{ visitor['Card'] }}</td>
+              <td>{{ visitor['UID'] }}</td>
+
+              <td>{{ visitor['Gender'] }}</td>
+              <td>{{ visitor['Purpose'] }}</td>
+              <td>{{ visitor['Approvedby'] }}</td>
+              <td>{{ visitor['Date'] }}</td>
+              <td>{{ visitor['Exittime'] }}</td>
+</tr>
+            {% endfor %}
+            </tbody>
+          </table>
+         </div>
+          <center><h3>Rejected Visitors</h3></center>
+         <div class="table-responsive">
+          <table class="table">
+            <thead class="table-light">
+              <th>Sr No</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone No</th>
+              <th>Card</th>
+              <th>UID No</th>
+              <th>Gender</th>
+              <th>Purpose</th>
+              <th>Approved</th>
+              <th>Entry Details</th>
+            </thead>
+            <tbody>{% for rejvis in rejectobj%}
+<tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ rejvis['Name'] }}</td>
+              <td>{{ rejvis['Email'] }}</td>
+              <td>{{ rejvis['Phone'] }}</td>
+              <td>{{ rejvis['Card'] }}</td>
+              <td>{{ rejvis['UID'] }}</td>
+              <td>{{ rejvis['Gender'] }}</td>
+              <td>{{ rejvis['Purpose'] }}</td>
+              <td>{{ rejvis['Approvedby'] }}</td>
+              <td>{{ rejvis['Date'] }}</td>
+</tr>
+            {% endfor %}
+            </tbody>
+          </table>
+         </div>
+        </div>
+        <div class="tab-pane fade" id="v-pills-notification" role="tabpanel" aria-labelledby="v-pills-notification-tab">
+          <table class="table">
+            <thead class="table-light">
+              <th>Sr No</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone No</th>
+              <th>Card</th>
+              <th>UID No</th>
+              <th>Gender</th>
+              <th>Purpose</th>
+              <th>Approved</th>
+              <th>Entry Details</th>
+              <th>Decision</th>
+            </thead>
+            {% for rvis in reqobj%}
+            <tbody>
+              <td>{{ loop.index }}</td>
+              <td>{{ rvis['Name'] }}</td>
+              <td>{{ rvis['Email'] }}</td>
+              <td>{{ rvis['Phone'] }}</td>
+              <td>{{ rvis['Card'] }}</td>
+              <td>{{ rvis['UID'] }}</td>
+              <td>{{ rvis['Gender'] }}</td>
+              <td>{{ rvis['Purpose'] }}</td>
+              <td>{{ rvis['Approvedby'] }}</td>
+              <td>{{ rvis['Date'] }}</td>
+              <td>
+                <a href="/acceptvis/{{ rvis['UID'] }}">
+                  <button type="button" class="btn btn-success">
+                    Accept
+                  </button></a>
+                <a href="/rejectvis/{{ rvis['UID'] }}">
+                  <button type="button" class="btn btn-danger">
+                    Reject
+                  </button></a>
+              </td>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+</div>
+  <script>
+      var password = document.getElementById('password_admin')
+      var flag = 1;  // 1 -> no errors | 0-> error is there.
+  function check(elem){
+   if(elem.value.length > 0){
+    if (elem.value != password.value){
+      document.getElementById('alert').innerText = "Confirm Password does not Matched";
+       flag = 0;
+    }
+    else{
+        document.getElementById('alert').innerText = "Password matched Successfully..!";
+          flag = 1;
+    }
+   }else{
+       document.getElementById('alert').innerText = "Please confirm your Password";
+       flag = 0;
+   }
+
+  }
+
+  function validate() {
+      if(flag==1){
+          return true;
+      }else {
+          return false;
+      }
+  }
+  </script>
+
+    <script>
+        function onChange() {
+  const pswd = document.querySelector('input[name=password]');
+  const confirm = document.querySelector('input[name=passwordConfirmation]');
+  if (confirm.value === pswd.value) {
+    confirm.setCustomValidity('');
+  } else {
+    confirm.setCustomValidity('Passwords do not match');
+  }
+}
+    </script>
+  </body>
+</html>

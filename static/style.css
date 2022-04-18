@@ -1,0 +1,103 @@
+.login_html_container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url("./images/bgImg.jpg") no-repeat center center;
+    background-size: cover;
+}
+
+.login_html_block {
+    padding: 30px 20px;
+    width: 355px;
+    box-shadow: 1px 1px 11px 3px #9dbdbd4a;
+    border-radius: 4px;
+    backdrop-filter: blur(7px);
+}
+.add_main_first_col button.active {
+    background-color: transparent !important;
+    box-shadow: 1px 1px 20px 8px #8d585859;
+}
+.login_html_block a {
+    color: #fff;
+}
+.login_html_row input,.login_html_row input:focus {
+    background: transparent;
+    color: #fff;
+}
+.login_html_row label {
+    color: #fff;
+}
+
+
+.login_html_block center {
+    margin-top: 32px;
+}
+p.login_html_heading {
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+.add_main_first_col {
+    background: #212529;
+
+    padding-top: 19px;
+    height: calc(100vh - 56px);
+    position: sticky;
+    top: 56px;
+    padding-right: 0 !important;
+}
+.nav {
+    flex-direction: column;
+}
+.sticky_style{
+    position: sticky !important;
+    top: 0;
+    z-index: 9999;
+}
+
+
+div#v-pills-home .card {
+    padding: 0;
+    box-shadow: 1px 1px 7px 1px #efe4e4;
+}
+body{
+    overflow-x: hidden;
+}
+div#v-pills-home img {
+    width: 30%;
+    margin: 0 auto;
+    padding-top: 30px;
+    padding-bottom: 17px;
+}
+
+div#v-pills-home .card-group {
+    gap: 60px;
+}
+
+.add_main_second_col {
+    padding-top: 30px;
+}
+
+
+form.admin_popup_form_style .input-group-prepend span {
+    border: none;
+    position: absolute;
+    z-index: 9;
+    background: transparent !important;
+    left: 0;
+    top: 4px;
+}
+
+form.admin_popup_form_style input {
+    padding-left: 43px;
+}
+
+/* input#country-prefix {
+} */
+
+form.admin_popup_form_style input#phoneNumber {
+    padding-left: 10px;
+}

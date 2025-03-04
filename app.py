@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Flask, render_template, Response, request, redirect, url_for, session
-#from flask import *
+# from flask import *
 import cv2
 import datetime, time
 import os, sys
@@ -19,14 +19,13 @@ import dateutil.parser as dparser
 import winsound
 import threading
 
-
-
 import pymongo
+from numpy.compat import unicode
 from pymongo import MongoClient, ReadPreference
 
 # define cluster
 
-
+cluster = MongoClient("mongodb://localhost:27017/")
 db = cluster["visitor"]
 collection = db["users"]
 visitorlogtable = db["VisitorLog"]
@@ -41,7 +40,8 @@ global dobee, countreq
 dobee = 0
 countreq = 0
 for x in reqvistable.find():
-    countreq = countreq  + 1
+    countreq = countreq + 1
+
 
 def printit():
     global dobee, countreq
@@ -56,8 +56,7 @@ def printit():
 
 printit()
 
-
-global capture, rec_frame, grey, switch, neg, face, rec, out, data, approvedby,dataobject1
+global capture, rec_frame, grey, switch, neg, face, rec, out, data, approvedby, dataobject1
 capture = 0
 grey = 0
 neg = 0
@@ -68,8 +67,6 @@ data = {}
 approvedby = ""
 dataobject1 = {}
 
-
-
 # make shots directory to save pics
 try:
     os.mkdir('./shots')
@@ -77,15 +74,16 @@ try:
 except OSError as error:
     pass
 
-
 # Load pretrained face detection model
-net = cv2.dnn.readNetFromCaffe('./saved_model/deploy.prototxt.txt', './saved_model/res10_300x300_ssd_iter_140000.caffemodel')
+net = cv2.dnn.readNetFromCaffe('./saved_model/deploy.prototxt.txt',
+                               './saved_model/res10_300x300_ssd_iter_140000.caffemodel')
 
 # instatiate flask app
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = "auth"
 
 camera = cv2.VideoCapture(0)
+
 
 def record(out):
     global rec_frame
@@ -137,7 +135,7 @@ def gen_frames():  # generate frame by frame from camera
                 p = os.path.sep.join(['shots', "shot_{}.png".format(str(now).replace(":", ''))])
                 cv2.imwrite(p, frame)
                 data = extract_card_details(p)
-                print("data->",data)
+                print("data->", data)
 
             if (rec):
                 rec_frame = frame
@@ -158,7 +156,6 @@ def gen_frames():  # generate frame by frame from camera
 
 
 def pan_read_data(text):
-
     name = None
     fname = None
     dob = None
@@ -203,7 +200,7 @@ def pan_read_data(text):
                 break
 
         text0 = text1[lineno + 1:]
-        print("\ntext0->",text0)
+        print("\ntext0->", text0)
 
         x = 0
         while x < len(text0):
@@ -217,7 +214,7 @@ def pan_read_data(text):
                 x = x + 1
 
         x = 0
-        
+
         while x < len(text0):
             if text0[x].find("Name") != -1:
                 if text0[x + 1] != '':
@@ -245,7 +242,7 @@ def pan_read_data(text):
                 x = x + 1
 
         x = 0
-        
+
         while x < len(text0):
             if text0[x].find("Birth") != -1:
                 if len(text0[x + 1]) == 0:
@@ -261,7 +258,6 @@ def pan_read_data(text):
                 if re.match("^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$", no):
                     dob = no
 
-
         with open('namedb.csv', 'rt') as f:
             reader = csv.reader(f)
             newlist = list(reader)
@@ -275,9 +271,6 @@ def pan_read_data(text):
                         break
         except Exception as ex:
             pass
-
-
-
 
         dataobj = {}
         dataobj['Name'] = name
@@ -302,9 +295,6 @@ def pan_read_data(text):
         fname = text0[1]
         dob = text0[2][0:10]
         pan = text0[4][0:10]
-
-
-
 
         dataobj = {}
         dataobj['Name'] = name
@@ -503,9 +493,10 @@ def tasks():
 
 
     elif request.method == 'GET':
-        return render_template('Security Dashboard.html',data={},approvedby=approvedby)
+        return render_template('Security Dashboard.html', data={}, approvedby=approvedby)
     time.sleep(6)
-    return render_template('Security Dashboard.html',data=data,approvedby=approvedby)
+    return render_template('Security Dashboard.html', data=data, approvedby=approvedby)
+
 
 @app.route('/admindash')
 def admindash():
@@ -519,18 +510,24 @@ def admindash():
     countadminusers = len(adminobj)
     countvis = len(visitobj)
     countact = len(activeobj)
-    return render_template('Admin Dashboard.html', visitobj=visitobj, activeobj=activeobj, reqobj=reqobj,rejectobj=rejectobj, secobj=secobj,adminobj=adminobj,countsecurityusers=countsecurityusers,countadminusers=countadminusers,countvis=countvis,countact=countact)
+    return render_template('Admin Dashboard.html', visitobj=visitobj, activeobj=activeobj, reqobj=reqobj,
+                           rejectobj=rejectobj, secobj=secobj, adminobj=adminobj, countsecurityusers=countsecurityusers,
+                           countadminusers=countadminusers, countvis=countvis, countact=countact)
+
 
 @app.route('/securitydash')
 def securitydash():
     visitobj = list(visitorlogtable.find())
     activeobj = list(activevisitorstable.find())
-    return render_template('Security Dashboard.html', data={}, visitobj=visitobj, activeobj=activeobj,approvedby=approvedby)
+    return render_template('Security Dashboard.html', data={}, visitobj=visitobj, activeobj=activeobj,
+                           approvedby=approvedby)
+
 
 @app.route('/logoutadmin')
 def logoutadmin():
-    session.pop("emailadmin",None)
+    session.pop("emailadmin", None)
     return redirect(url_for('index'))
+
 
 @app.route('/logoutsecurity')
 def logoutsecurity():
@@ -556,17 +553,20 @@ def auth():
         countvis = len(visitobj)
         countact = len(activeobj)
 
-
         emailsplit = email.split("@")
         approvedby = emailsplit[0]
 
         for x in collection.find():
             if x['Email'] == email and x['Password'] == password and email.find("admin") != -1:
                 session['emailadmin'] = email
-                return render_template('Admin Dashboard.html',visitobj=visitobj, activeobj=activeobj, reqobj=reqobj,rejectobj=rejectobj,secobj=secobj,adminobj=adminobj,countsecurityusers=countsecurityusers,countadminusers=countadminusers,countvis=countvis,countact=countact)
+                return render_template('Admin Dashboard.html', visitobj=visitobj, activeobj=activeobj, reqobj=reqobj,
+                                       rejectobj=rejectobj, secobj=secobj, adminobj=adminobj,
+                                       countsecurityusers=countsecurityusers, countadminusers=countadminusers,
+                                       countvis=countvis, countact=countact)
             if x['Email'] == email and x['Password'] == password and email.find("security") != -1:
                 session['emailsecurity'] = email
-                return render_template('Security Dashboard.html',data={},visitobj = visitobj,activeobj = activeobj,approvedby=approvedby)
+                return render_template('Security Dashboard.html', data={}, visitobj=visitobj, activeobj=activeobj,
+                                       approvedby=approvedby)
 
         return render_template('login.html')
 
@@ -574,28 +574,30 @@ def auth():
 @app.route('/deletevis/<uid>', methods=['POST', 'GET'])
 def deletevis(uid):
     global approvedby
-    activevisitorstable.delete_one({"UID":uid})
+    activevisitorstable.delete_one({"UID": uid})
     now1 = datetime.datetime.now()
     dt_string = now1.strftime("%d/%m/%Y %H:%M:%S")
-    myquery = {"UID":uid}
+    myquery = {"UID": uid}
     newvalues = {"$set": {"Exittime": dt_string}}
     visitorlogtable.update_one(myquery, newvalues)
     return redirect(url_for('securitydash'))
 
 
-
 @app.route('/acceptvis/<uid>', methods=['POST', 'GET'])
 def acceptvis(uid):
-    #global approvedby
-    element1 = reqvistable.find_one({"UID": uid},{ "_id": 0, "Name": 1, "Gender": 1, "Card":1, "UID":1, "Date":1, "Purpose":1, "Email":1, "Phone":1, "Approvedby":1, "Exittime":1 })
+    # global approvedby
+    element1 = reqvistable.find_one({"UID": uid},
+                                    {"_id": 0, "Name": 1, "Gender": 1, "Card": 1, "UID": 1, "Date": 1, "Purpose": 1,
+                                     "Email": 1, "Phone": 1, "Approvedby": 1, "Exittime": 1})
     reqvistable.delete_one({"UID": uid})
     visitorlogtable.insert_one(element1)
     activevisitorstable.insert_one(element1)
     return redirect(url_for('admindash'))
 
+
 @app.route('/rejectvis/<uid>', methods=['POST', 'GET'])
 def rejectvis(uid):
-    #global approvedby
+    # global approvedby
     element2 = reqvistable.find_one({"UID": uid},
                                     {"_id": 0, "Name": 1, "Gender": 1, "Card": 1, "UID": 1, "Date": 1, "Purpose": 1,
                                      "Email": 1, "Phone": 1, "Approvedby": 1, "Exittime": 1})
@@ -615,16 +617,17 @@ def addsec():
             password = request.form['password']
 
             daobject = {
-                "Name" : name1,
-                "Email" : email1,
-                "Phone" : phone,
-                "Job" : job1,
-                "Password" : password,
+                "Name": name1,
+                "Email": email1,
+                "Phone": phone,
+                "Job": job1,
+                "Password": password,
             }
 
             collection.insert_one(daobject)
             securitylog.insert_one(daobject)
     return redirect(url_for('admindash'))
+
 
 @app.route('/addadmin', methods=['GET', 'POST'])
 def addadmin():
@@ -637,17 +640,16 @@ def addadmin():
             password2 = request.form['password']
 
             adobject = {
-                "Name" : name2,
-                "Email" : email2,
-                "Phone" : phone2,
-                "Job" : job2,
-                "Password" : password2,
+                "Name": name2,
+                "Email": email2,
+                "Phone": phone2,
+                "Job": job2,
+                "Password": password2,
             }
 
             collection.insert_one(adobject)
             adminlog.insert_one(adobject)
     return redirect(url_for('admindash'))
-
 
 
 @app.route('/deleteuser/<Phone>', methods=['POST', 'GET'])
@@ -657,34 +659,31 @@ def deleteuser(Phone):
     adminlog.delete_one({"Phone": Phone})
     return redirect(url_for('admindash'))
 
+
 @app.route('/updateusers/<id>', methods=['POST', 'GET'])
 def updateusers(id):
     users = collection.db.users
     items = users.find_one({'_id': ObjectId(id)})
 
     if request.method == 'POST':
-     if request.form['submit'] == 'pass':
+        if request.form['submit'] == 'pass':
+            myquery = {'_id': ObjectId(id)}
 
-
-        myquery = {'_id': ObjectId(id)}
-
-        updatelog ={"$set":
-                    {"Name": request.form.get('Name'),
-                    "Email": request.form.get('Email'),
-                    "Phone": request.form.get('Phone'),
-                    "Job": request.form.get('Job'),
-                    "Password": request.files.get('Password'),
-                    "date": datetime.datetime.utcnow()
-                    }
-           }
+            updatelog = {"$set":
+                             {"Name": request.form.get('Name'),
+                              "Email": request.form.get('Email'),
+                              "Phone": request.form.get('Phone'),
+                              "Job": request.form.get('Job'),
+                              "Password": request.files.get('Password'),
+                              "date": datetime.datetime.utcnow()
+                              }
+                         }
 
     adminlog.update_one(myquery, updatelog)
     collection.update_one(myquery, updatelog)
     securitylog.update_one(myquery, updatelog)
 
-
     return redirect(url_for('admindash'))
-
 
 
 @app.route('/visitor', methods=['GET', 'POST'])
@@ -705,18 +704,17 @@ def visitor():
             card = request.form['card']
 
             dataobject1 = {
-                "Name":name,
-                "Gender":gender,
-                "Card":card,
-                "UID":uid,
-                "Date":date,
-                "Purpose":purpose,
-                "Email":email,
-                "Phone":phone,
-                "Approvedby":apprv,
-                "Exittime":""
+                "Name": name,
+                "Gender": gender,
+                "Card": card,
+                "UID": uid,
+                "Date": date,
+                "Purpose": purpose,
+                "Email": email,
+                "Phone": phone,
+                "Approvedby": apprv,
+                "Exittime": ""
             }
-
 
             reqvistable.insert_one(dataobject1)
             dobee = 1
@@ -724,6 +722,5 @@ def visitor():
     return redirect(url_for('securitydash'))
 
 
-
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug=True)

@@ -20,7 +20,7 @@ import winsound
 import threading
 
 import pymongo
-from numpy.compat import unicode
+# from numpy.compat import unicode
 from pymongo import MongoClient, ReadPreference
 
 # define cluster
@@ -75,8 +75,8 @@ except OSError as error:
     pass
 
 # Load pretrained face detection model
-net = cv2.dnn.readNetFromCaffe('./saved_model/deploy.prototxt.txt',
-                               './saved_model/res10_300x300_ssd_iter_140000.caffemodel')
+net = cv2.dnn.readNetFromCaffe('saved_model/deploy.prototxt.txt',
+                               'saved_model/res10_300x300_ssd_iter_140000.caffemodel')
 
 # instatiate flask app
 app = Flask(__name__, template_folder='./templates')
@@ -255,7 +255,7 @@ def pan_read_data(text):
 
         if dob == None:
             for no in text0:
-                if re.match("^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$", no):
+                if re.match(r"^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$", no):
                     dob = no
 
         with open('namedb.csv', 'rt') as f:
@@ -424,15 +424,12 @@ def extract_card_details(filename):
     elif "male" in text.lower() or "VID" in text:
         data = adhaar_read_data(text)
 
-    try:
-        to_unicode = unicode
-    except NameError:
-        to_unicode = str
+    # Removed try-except block since unicode is not needed in modern Python
     with io.open('info.json', 'w', encoding='utf-8') as outfile:
         data = json.dumps(data, indent=4, sort_keys=True, separators=(',', ': '), ensure_ascii=False)
-        outfile.write(to_unicode(data))
-    with open('info.json', encoding='utf-8') as data:
-        data_loaded = json.load(data)
+        outfile.write(data)  # Direct string writing, no conversion needed
+    with open('info.json', encoding='utf-8') as data_file:
+        data_loaded = json.load(data_file)
     print(data_loaded)
     return data_loaded
 
@@ -557,13 +554,16 @@ def auth():
         approvedby = emailsplit[0]
 
         for x in collection.find():
-            if x['Email'] == email and x['Password'] == password and email.find("admin") != -1:
-                session['emailadmin'] = email
-                return render_template('Admin Dashboard.html', visitobj=visitobj, activeobj=activeobj, reqobj=reqobj,
-                                       rejectobj=rejectobj, secobj=secobj, adminobj=adminobj,
-                                       countsecurityusers=countsecurityusers, countadminusers=countadminusers,
-                                       countvis=countvis, countact=countact)
-            if x['Email'] == email and x['Password'] == password and email.find("security") != -1:
+            # if x['Email'] == email and x['Password'] == password and email.find("admin") != -1:
+            # if x['Email'] == email and x['Password'] == password:
+            #     print("hello you are welcome")
+            #     session['emailadmin'] = email
+            #     return render_template('Admin Dashboard.html', visitobj=visitobj, activeobj=activeobj, reqobj=reqobj,
+            #                            rejectobj=rejectobj, secobj=secobj, adminobj=adminobj,
+            #                            countsecurityusers=countsecurityusers, countadminusers=countadminusers,
+            #                            countvis=countvis, countact=countact)
+            # if x['Email'] == email and x['Password'] == password and email.find("security") != -1:
+            if x['Email'] == email and x['Password'] == password:
                 session['emailsecurity'] = email
                 return render_template('Security Dashboard.html', data={}, visitobj=visitobj, activeobj=activeobj,
                                        approvedby=approvedby)

@@ -133,16 +133,19 @@ def gen_frames():  # generate frame by frame from camera
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if (neg):
                 frame = cv2.bitwise_not(frame)
-            if (capture):
+            if capture:
                 capture = 0
-                data = {}
                 now = datetime.datetime.now()
                 p = os.path.sep.join(['shots', "shot_{}.png".format(str(now).replace(":", ''))])
                 cv2.imwrite(p, frame)
-                data = extract_card_details(frame)  # Pass frame instead of file path
-               
-                # data = extract_card_details(p)
-                print("data->", data)
+
+                # Ensure `extract_card_details` always returns a valid result
+                data = extract_card_details(p)
+                
+                if data:  # Check if data is valid
+                    print("data ->", data)
+                else:
+                    print("Error: Failed to extract card details.")
 
             if (rec):
                 rec_frame = frame
@@ -284,7 +287,7 @@ def pan_read_data(text):
         dataobj['Date of Birth'] = dob
         dataobj['UID'] = pan
         dataobj['ID Type'] = "PAN"
-        # print(dataobj)
+        print(dataobj)
         return dataobj
 
     else:
@@ -407,19 +410,26 @@ def adhaar_read_data(text):
 def extract_card_details(filename):
     # pytesseract.pytesseract.tesseract_cmd = r":\Users\Shubham\Desktop\VISITOR_PASS\elgoss-visitor-pass\vistor-env\Lib\site-packages\pytesseract\pytesseract.py"
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
+    # data={}
     img = cv2.imread(filename)
     img = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     var = cv2.Laplacian(img, cv2.CV_64F).var()
+    # img = cv2.imread(filename)
+    # img = cv2.resize(img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    # var = cv2.Laplacian(img, cv2.CV_64F).var()
     if var < 100:
         gaussian_blur = cv2.GaussianBlur(img, (7, 7), 2)
         sharpened2 = cv2.addWeighted(img, 3.5, gaussian_blur, -2.5, 0)
         cv2.imwrite("sh2.jpg", sharpened2)
-        filename = r"sh2.jpg"
+        # filename = r"\Users\Shubham\Desktop\VISITOR_PASS\elgoss-visitor-pass\sh2.jpg"
+        filename = r"t.PNG"  
+        print(f"hello guys this is my name :{filename}")
 
     text = pytesseract.image_to_string(Image.open(filename), lang='eng')
-    print (image_to_string(Image.open(filename), lang='eng'))#write itself
+    print ("image text",text)#write itself
 
     text_output = open('output.txt', 'w', encoding='utf-8')
     text_output.write(text)
@@ -430,20 +440,20 @@ def extract_card_details(filename):
 
     text = ftfy.fix_text(text)
     text = ftfy.fix_encoding(text)
+    data={}
     if "income" in text.lower() or "tax" in text.lower() or "department" in text.lower() or "permanent" in text.lower() or "account" in text.lower() or "number" in text.lower() or "card" in text.lower() or "father" in text.lower() or "signature" in text.lower():
         data = pan_read_data(text)
-        # print(data)#i am write
+        print("extracted data : ",data)#chnages
     elif "male" in text.lower() or "VID" in text:
-
         data = adhaar_read_data(text)
-
+    print("extracted data : ",data)#chnages
     # Removed try-except block since unicode is not needed in modern Python
     with io.open('info.json', 'w', encoding='utf-8') as outfile:
         data = json.dumps(data, indent=4, sort_keys=True, separators=(',', ': '), ensure_ascii=False)
         outfile.write(data)  # Direct string writing, no conversion needed
     with open('info.json', encoding='utf-8') as data_file:
         data_loaded = json.load(data_file)
-    print(data_loaded)
+    print("data load :",data_loaded)
     return data_loaded
 
 

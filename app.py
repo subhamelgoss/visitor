@@ -18,10 +18,13 @@ import csv
 import dateutil.parser as dparser
 import winsound
 import threading
+from pymongo import MongoClient
+from bson import ObjectId
+from pytesseract import image_to_string
 
-import pymongo
+
 # from numpy.compat import unicode
-from pymongo import MongoClient, ReadPreference
+from pymongo import MongoClient,ReadPreference
 
 # define cluster
 
@@ -75,12 +78,13 @@ except OSError as error:
     pass
 
 # Load pretrained face detection model
-net = cv2.dnn.readNetFromCaffe('saved_model/deploy.prototxt.txt',
-                               'saved_model/res10_300x300_ssd_iter_140000.caffemodel')
+net = cv2.dnn.readNetFromCaffe('saved_model/deploy.prototxt.txt', 'saved_model/res10_300x300_ssd_iter_140000.caffemodel')
 
 # instatiate flask app
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = "auth"
+
+
 
 camera = cv2.VideoCapture(0)
 
@@ -95,8 +99,7 @@ def record(out):
 def detect_face(frame):
     global net
     (h, w) = frame.shape[:2]
-    blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 1.0,
-                                 (300, 300), (104.0, 177.0, 123.0))
+    blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 1.0,(300, 300), (104.0, 177.0, 123.0))
     net.setInput(blob)
     detections = net.forward()
     confidence = detections[0, 0, 0, 2]
@@ -105,6 +108,8 @@ def detect_face(frame):
         return frame
 
     box = detections[0, 0, 0, 3:7] * np.array([w, h, w, h])
+
+    
     (startX, startY, endX, endY) = box.astype("int")
     try:
         frame = frame[startY:endY, startX:endX]
@@ -134,13 +139,14 @@ def gen_frames():  # generate frame by frame from camera
                 now = datetime.datetime.now()
                 p = os.path.sep.join(['shots', "shot_{}.png".format(str(now).replace(":", ''))])
                 cv2.imwrite(p, frame)
-                data = extract_card_details(p)
+                data = extract_card_details(frame)  # Pass frame instead of file path
+               
+                # data = extract_card_details(p)
                 print("data->", data)
 
             if (rec):
                 rec_frame = frame
-                frame = cv2.putText(cv2.flip(frame, 1), "Recording...", (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                                    (0, 0, 255), 4)
+                frame = cv2.putText(cv2.flip(frame, 1), "Recording...", (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1,(0, 0, 255), 4)
                 frame = cv2.flip(frame, 1)
 
             try:
@@ -278,6 +284,7 @@ def pan_read_data(text):
         dataobj['Date of Birth'] = dob
         dataobj['UID'] = pan
         dataobj['ID Type'] = "PAN"
+        # print(dataobj)
         return dataobj
 
     else:
@@ -302,6 +309,7 @@ def pan_read_data(text):
         dataobj['Date of Birth'] = dob
         dataobj['UID'] = pan
         dataobj['ID Type'] = "PAN"
+        # print(dataobj)
         return dataobj
 
 
@@ -397,7 +405,9 @@ def adhaar_read_data(text):
 
 
 def extract_card_details(filename):
+    # pytesseract.pytesseract.tesseract_cmd = r":\Users\Shubham\Desktop\VISITOR_PASS\elgoss-visitor-pass\vistor-env\Lib\site-packages\pytesseract\pytesseract.py"
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
     img = cv2.imread(filename)
     img = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -409,6 +419,7 @@ def extract_card_details(filename):
         filename = r"sh2.jpg"
 
     text = pytesseract.image_to_string(Image.open(filename), lang='eng')
+    print (image_to_string(Image.open(filename), lang='eng'))#write itself
 
     text_output = open('output.txt', 'w', encoding='utf-8')
     text_output.write(text)
@@ -421,7 +432,9 @@ def extract_card_details(filename):
     text = ftfy.fix_encoding(text)
     if "income" in text.lower() or "tax" in text.lower() or "department" in text.lower() or "permanent" in text.lower() or "account" in text.lower() or "number" in text.lower() or "card" in text.lower() or "father" in text.lower() or "signature" in text.lower():
         data = pan_read_data(text)
+        # print(data)#i am write
     elif "male" in text.lower() or "VID" in text:
+
         data = adhaar_read_data(text)
 
     # Removed try-except block since unicode is not needed in modern Python
@@ -437,6 +450,7 @@ def extract_card_details(filename):
 @app.route('/')
 def index():
     return render_template('login.html')
+    
 
 
 @app.route('/video_feed')
@@ -495,6 +509,7 @@ def tasks():
     return render_template('Security Dashboard.html', data=data, approvedby=approvedby)
 
 
+
 @app.route('/admindash')
 def admindash():
     visitobj = list(visitorlogtable.find())
@@ -516,19 +531,19 @@ def admindash():
 def securitydash():
     visitobj = list(visitorlogtable.find())
     activeobj = list(activevisitorstable.find())
-    return render_template('Security Dashboard.html', data={}, visitobj=visitobj, activeobj=activeobj,
-                           approvedby=approvedby)
+    return render_template('Security Dashboard.html', data={}, visitobj=visitobj, activeobj=activeobj, approvedby=approvedby)
 
 
-@app.route('/logoutadmin')
-def logoutadmin():
-    session.pop("emailadmin", None)
-    return redirect(url_for('index'))
+# @app.route('/logoutadmin')
+# def logoutadmin():
+#     session.pop("emailadmin", None)
+#     return redirect(url_for('index'))
 
 
-@app.route('/logoutsecurity')
-def logoutsecurity():
+# @app.route('/logoutsecurity')
+# def logoutsecurity():
     session.pop("emailsecurity", None)
+    camera.release()
     return redirect(url_for('index'))
 
 
@@ -571,119 +586,119 @@ def auth():
         return render_template('login.html')
 
 
-@app.route('/deletevis/<uid>', methods=['POST', 'GET'])
-def deletevis(uid):
-    global approvedby
-    activevisitorstable.delete_one({"UID": uid})
-    now1 = datetime.datetime.now()
-    dt_string = now1.strftime("%d/%m/%Y %H:%M:%S")
-    myquery = {"UID": uid}
-    newvalues = {"$set": {"Exittime": dt_string}}
-    visitorlogtable.update_one(myquery, newvalues)
-    return redirect(url_for('securitydash'))
+# @app.route('/deletevis/<uid>', methods=['POST', 'GET'])
+# def deletevis(uid):
+#     global approvedby
+#     activevisitorstable.delete_one({"UID": uid})
+#     now1 = datetime.datetime.now()
+#     dt_string = now1.strftime("%d/%m/%Y %H:%M:%S")
+#     myquery = {"UID": uid}
+#     newvalues = {"$set": {"Exittime": dt_string}}
+#     visitorlogtable.update_one(myquery, newvalues)
+#     return redirect(url_for('securitydash'))
 
 
-@app.route('/acceptvis/<uid>', methods=['POST', 'GET'])
-def acceptvis(uid):
-    # global approvedby
-    element1 = reqvistable.find_one({"UID": uid},
-                                    {"_id": 0, "Name": 1, "Gender": 1, "Card": 1, "UID": 1, "Date": 1, "Purpose": 1,
-                                     "Email": 1, "Phone": 1, "Approvedby": 1, "Exittime": 1})
-    reqvistable.delete_one({"UID": uid})
-    visitorlogtable.insert_one(element1)
-    activevisitorstable.insert_one(element1)
-    return redirect(url_for('admindash'))
+# @app.route('/acceptvis/<uid>', methods=['POST', 'GET'])
+# def acceptvis(uid):
+#     # global approvedby
+#     element1 = reqvistable.find_one({"UID": uid},
+#                                     {"_id": 0, "Name": 1, "Gender": 1, "Card": 1, "UID": 1, "Date": 1, "Purpose": 1,
+#                                      "Email": 1, "Phone": 1, "Approvedby": 1, "Exittime": 1})
+#     reqvistable.delete_one({"UID": uid})
+#     visitorlogtable.insert_one(element1)
+#     activevisitorstable.insert_one(element1)
+#     return redirect(url_for('admindash'))
 
 
-@app.route('/rejectvis/<uid>', methods=['POST', 'GET'])
-def rejectvis(uid):
-    # global approvedby
-    element2 = reqvistable.find_one({"UID": uid},
-                                    {"_id": 0, "Name": 1, "Gender": 1, "Card": 1, "UID": 1, "Date": 1, "Purpose": 1,
-                                     "Email": 1, "Phone": 1, "Approvedby": 1, "Exittime": 1})
-    reqvistable.delete_one({"UID": uid})
-    rejectedvistable.insert_one(element2)
-    return redirect(url_for('admindash'))
+# @app.route('/rejectvis/<uid>', methods=['POST', 'GET'])
+# def rejectvis(uid):
+#     # global approvedby
+#     element2 = reqvistable.find_one({"UID": uid},
+#                                     {"_id": 0, "Name": 1, "Gender": 1, "Card": 1, "UID": 1, "Date": 1, "Purpose": 1,
+#                                      "Email": 1, "Phone": 1, "Approvedby": 1, "Exittime": 1})
+#     reqvistable.delete_one({"UID": uid})
+#     rejectedvistable.insert_one(element2)
+#     return redirect(url_for('admindash'))
 
 
-@app.route('/addsec', methods=['GET', 'POST'])
-def addsec():
-    if request.method == 'POST':
-        if request.form['submit'] == 'pass':
-            name1 = request.form['fullname']
-            email1 = request.form['addemail']
-            phone = request.form['phone']
-            job1 = request.form['jobtitle']
-            password = request.form['password']
+# @app.route('/addsec', methods=['GET', 'POST'])
+# def addsec():
+#     if request.method == 'POST':
+#         if request.form['submit'] == 'pass':
+#             name1 = request.form['fullname']
+#             email1 = request.form['addemail']
+#             phone = request.form['phone']
+#             job1 = request.form['jobtitle']
+#             password = request.form['password']
 
-            daobject = {
-                "Name": name1,
-                "Email": email1,
-                "Phone": phone,
-                "Job": job1,
-                "Password": password,
-            }
+#             daobject = {
+#                 "Name": name1,
+#                 "Email": email1,
+#                 "Phone": phone,
+#                 "Job": job1,
+#                 "Password": password,
+#             }
 
-            collection.insert_one(daobject)
-            securitylog.insert_one(daobject)
-    return redirect(url_for('admindash'))
-
-
-@app.route('/addadmin', methods=['GET', 'POST'])
-def addadmin():
-    if request.method == 'POST':
-        if request.form['submit1'] == 'pass':
-            name2 = request.form['fullname']
-            email2 = request.form['addemail']
-            phone2 = request.form['phone']
-            job2 = request.form['jobtitle']
-            password2 = request.form['password']
-
-            adobject = {
-                "Name": name2,
-                "Email": email2,
-                "Phone": phone2,
-                "Job": job2,
-                "Password": password2,
-            }
-
-            collection.insert_one(adobject)
-            adminlog.insert_one(adobject)
-    return redirect(url_for('admindash'))
+#             collection.insert_one(daobject)
+#             securitylog.insert_one(daobject)
+#     return redirect(url_for('admindash'))
 
 
-@app.route('/deleteuser/<Phone>', methods=['POST', 'GET'])
-def deleteuser(Phone):
-    collection.delete_one({"Phone": Phone})
-    securitylog.delete_one({"Phone": Phone})
-    adminlog.delete_one({"Phone": Phone})
-    return redirect(url_for('admindash'))
+# @app.route('/addadmin', methods=['GET', 'POST'])
+# def addadmin():
+#     if request.method == 'POST':
+#         if request.form['submit1'] == 'pass':
+#             name2 = request.form['fullname']
+#             email2 = request.form['addemail']
+#             phone2 = request.form['phone']
+#             job2 = request.form['jobtitle']
+#             password2 = request.form['password']
+
+#             adobject = {
+#                 "Name": name2,
+#                 "Email": email2,
+#                 "Phone": phone2,
+#                 "Job": job2,
+#                 "Password": password2,
+#             }
+
+#             collection.insert_one(adobject)
+#             adminlog.insert_one(adobject)
+#     return redirect(url_for('admindash'))
 
 
-@app.route('/updateusers/<id>', methods=['POST', 'GET'])
-def updateusers(id):
-    users = collection.db.users
-    items = users.find_one({'_id': ObjectId(id)})
+# @app.route('/deleteuser/<Phone>', methods=['POST', 'GET'])
+# def deleteuser(Phone):
+#     collection.delete_one({"Phone": Phone})
+#     securitylog.delete_one({"Phone": Phone})
+#     adminlog.delete_one({"Phone": Phone})
+#     return redirect(url_for('admindash'))
 
-    if request.method == 'POST':
-        if request.form['submit'] == 'pass':
-            myquery = {'_id': ObjectId(id)}
 
-            updatelog = {"$set":
-                             {"Name": request.form.get('Name'),
-                              "Email": request.form.get('Email'),
-                              "Phone": request.form.get('Phone'),
-                              "Job": request.form.get('Job'),
-                              "Password": request.files.get('Password'),
-                              "date": datetime.datetime.utcnow()
-                              }
-                         }
+# @app.route('/updateusers/<id>', methods=['POST', 'GET'])
+# def updateusers(id):
+#     users = collection.db.users
+#     items = users.find_one({'_id': ObjectId(id)})
 
-    adminlog.update_one(myquery, updatelog)
-    collection.update_one(myquery, updatelog)
-    securitylog.update_one(myquery, updatelog)
+#     if request.method == 'POST':
+#         if request.form['submit'] == 'pass':
+#             myquery = {'_id': ObjectId(id)}
 
-    return redirect(url_for('admindash'))
+#             updatelog = {"$set":
+#                              {"Name": request.form.get('Name'),
+#                               "Email": request.form.get('Email'),
+#                               "Phone": request.form.get('Phone'),
+#                               "Job": request.form.get('Job'),
+#                               "Password": request.files.get('Password'),
+#                               "date": datetime.datetime.utcnow()
+#                               }
+#                          }
+
+#     adminlog.update_one(myquery, updatelog)
+#     collection.update_one(myquery, updatelog)
+#     securitylog.update_one(myquery, updatelog)
+
+#     return redirect(url_for('admindash'))
 
 
 @app.route('/visitor', methods=['GET', 'POST'])

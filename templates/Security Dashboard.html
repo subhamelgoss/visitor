@@ -60,7 +60,7 @@
                     <div class="card-header">
                         Set Information
                     </div>
-                    <form action="/visitor" method="post">
+                    <form action="{{ url_for('visitor') }}" method="post">
                     <div class="card-body">
 {#                        {% for obj in dataobj %}#}
                         <div class="form-floating mb-3">
@@ -217,7 +217,7 @@
 <script>
   var today = new Date();
   var date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear()+' '+today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-  {#var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();#}
+  // {#var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()#}
   document.getElementById("floatingInput1").value = date;
 
 </script>
